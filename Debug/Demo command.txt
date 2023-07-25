@@ -1,0 +1,1 @@
+python elabloader.py --apikey 396fed437d8b7b0d3f9d10d8d33a32ce1907073f9734fae3fb5e951a8f9ecd1058b86247390b3a8baa29 --url https://test-elab.ub.uni-frankfurt.de/api/v2/ --file /files/ForEndusers/ElabLoader/Input/20220818_primerOldAndNew_SL_forLuca.xlsx --cat_id 8
