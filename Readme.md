@@ -17,7 +17,7 @@
     * [Mode Antibodies](#mode-antibodies)
     * [Mode Consumables](#mode-consumables)
   * [Running](#running)
-    * [Arguments (Flags)](#arguments--flags-)
+    * [Arguments and Flags](#arguments-and-flags)
     * [Command examples](#command-examples)
 * [Legal and Credits](#legal-and-credits)
 <!-- TOC -->
@@ -109,7 +109,7 @@ Now at the bottom, head to "Terminal".
 
 Now for the arguments.
 
-### Arguments (Flags)
+### Arguments and Flags
 
 The program needs arguments to work; so called "Flags". These are instructions you give via a dash.
 
