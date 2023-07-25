@@ -173,7 +173,9 @@ For logging, you can dump the output to a file.
 
 # Legal and Credits
 
-ELAB LOADER was created by Luca Fries and Andreas Chiocchetti 
-as a custom solution for our lab to fulfill the requirement of uploading specific dataset items to our  ELAB database(s)
+this Script is published under [CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/)
 
+ELAB LOADER was created by Luca Fries and Andreas Chiocchetti: 
+this is custom solution for our lab to fulfill the requirement of 
+uploading specific dataset items to our ELAB database(s)
 
