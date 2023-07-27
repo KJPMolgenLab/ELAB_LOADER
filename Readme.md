@@ -4,22 +4,24 @@
     |  __| | |      / /\ \ |  _ <| |   | |  | |/ /\ \ | |  | |  __| |  _  / 
     | |____| |____ / ____ \| |_) | |___| |__| / ____ \| |__| | |____| | \ \ 
     |______|______/_/    \_\____/|______\____/_/    \_\_____/|______|_|  \_\
-# ELAB LOADER Alpha V0.5.8
+# ELAB LOADER Beta V 1.6.0
 
 <!-- TOC -->
 * [ELAB LOADER Alpha V0.5.8](#elab-loader-alpha-v058)
   * [Introduction](#introduction)
   * [Installation](#installation)
-* [Getting started](#getting-started)
+  * [Getting started](#getting-started)
   * [Data preparation](#data-preparation)
-    * [Mode Primer](#mode-primer)
-    * [Mode Restriction Enzyme](#mode-restriction-enzyme)
-    * [Mode Antibodies](#mode-antibodies)
-    * [Mode Consumables](#mode-consumables)
+  * [Modes](#modes)
+    * [Mode seqp](#mode-seqp)
+    * [Mode qpcr](#mode-qpcr)
+    * [Mode rest](#mode-rest)
+    * [Mode plas](#mode-plas)
+    * [Mode cons](#mode-cons)
   * [Running](#running)
-    * [Arguments and Flags](#arguments-and-flags)
+  * [Arguments and Flags](#arguments-and-flags)
     * [Command examples](#command-examples)
-* [Legal and Credits](#legal-and-credits)
+  * [Legal and Credits](#legal-and-credits)
 <!-- TOC -->
 
 <!--- ADD EULA AND LEGAL AT END  --->
@@ -28,92 +30,79 @@
 
 ## Introduction
 
-
+This is ELABLOADER, a simple-to-use, no-bullshit, non bloating, console based software solution for the modern, digitalized lab. It was created to meet the developers requirements of transfering data between the API provided by Elab and the tables provided by the physical lab. It is utilized mainly by reading in prepared XLSX files. Also, its now in Beta and that's pretty sick. Please do report any bugs! Thanks!
 
 ## Installation
 
-None. Please use this program only on the Nuvolos cloud instance.
-
+A simple download of a folder is all it takes. And the usual Python stuff.
+We tested on Python 3.9 .
+<br>
+<br>
+This is the official download source, the place to praise and the place to complain:
 ```
-pererequisites 
-und path to git dann 
+path to git, add on publihing
 ```
 
-# Getting started
+## Getting started
 
-So you want to upload a database item? Cool, lets get started.
+So you want to upload stuff onto the database? Cool, lets get started.
 
-What do I need<br>
-API Key <br>
-URL <br>
-Category ID in elab 
+What do I need? <br>
+-The Elab API Key (Kindly ask your Admin if unsure)<br>
+-The Elab URL (Also, kindly ask your Admin if unsure)<br>
+-Category ID in Elab (As you guessed, ask your Admin if you need this ID.)<br>
  
+## Data preparation
 
-<br>
-<br>
-## 1 Data preparation
-
-First, carefully prepare a list of the items to be added in XLSX format (Excel sheet).
+First, carefully prepare a list of the items to be added in XLSX format (Excel sheet). I strongly suggest using XLSX for comforts sake.
 Make sure the mandatory columns and header names are present in the file. These vary between the different types of data you can upload. 
-If you wish for visual examples, head over to the ./Examples folder.
-```plain
-## Ausfüllen  
-```
+If you are lost, head over to the ./Examples folder.
 
-## Data preparation 
+## Modes
 
-### Mode Primer
+### Everything marked red in the ./Examples Excel files is a mandatory entry and is case SENSITIVE!
 
-Mandatory columns:
-\# auflisten der Spaltennamen \+ was da rein muss 
+### Mode seqp
 
-Any other column 
-was passiert mit den andren Saplten 
+This mode will upload sequencing primers onto Elab.
+Fill out the mandatory columns. It is recommended to also fill out the existing ones, or remove them if not needed.
+Any additional columns will be added into the Elab table. Results can vary due to Elab's CSS.
 
-Example bild 
+### Mode qpcr
 
-### Mode Restriction Enzyme
+This mode will upload qpcr primers onto Elab.
+Fill out the mandatory columns. It is recommended to also fill out the existing ones, or remove them if not needed.
+Any additional columns will be added into the Elab table. Results can vary due to Elab's CSS.
 
-Mandatory columns:
+### Mode rest
 
-Any other column 
- 
+This mode will upload restriction enzymes onto Elab.
+Fill out the mandatory columns. It is recommended to also fill out the existing ones, or remove them if not needed.
+Any additional columns will be added into the Elab table. Results can vary due to Elab's CSS.
 
-### Mode Antibodies 
+### Mode plas
 
-Mandatory columns:
+This mode will upload plasmids onto Elab.
+Fill out the mandatory columns. It is recommended to also fill out the existing ones, or remove them if not needed.
+Any additional columns will be added into the Elab table. Results can vary due to Elab's CSS.
 
-Any other column 
+### Mode cons
 
-### Mode Consumables
-
-Mandatory columns:
-
-Any other column 
-
-<br>
+This mode will upload consumables (e.g. Chemicals, Tools, etc.) onto Elab.
+Fill out the mandatory columns. It is recommended to also fill out the existing ones, or remove them if not needed.
+Any additional columns will be added into the Elab table. Results can vary due to Elab's CSS.
 
 ## Running 
 
-```
-## anpassen so als wie wenn man das direct in ther console laufen lässt (nicht pycharm)
-```
+Download the ELABLOADER folder from GitHub. 
+Double-click the "elabloader.py" file (after consulting the /Examples folder if lost).
+When the console window pops up and is ready to receive user input, simply enter the command.
 
-To run the program, launch my instance on Nuvolos. Its name is "Luca Testproj".
-Simply click on the little monitor on the left sidebar and select the PyCharm application.
-Once it is run and you have the pycharm interface, navigate via the project explorer
-(the box with the folders on the left) to the folder called "ForEndusers".
-Do not touch anything else or I will have to launch you into the sun ;)
-Double click the "elabloader.py" file
-Now at the bottom, head to "Terminal".
+## Arguments and Flags
 
-Now for the arguments.
+The program needs arguments to work; so-called "Flags". These are instructions you give via a dash.
 
-### Arguments and Flags
-
-The program needs arguments to work; so called "Flags". These are instructions you give via a dash.
-
-The following instructions are available and mandatory. Use in this sequence:
+The following instructions are available and mandatory. Please make sure you do not miss any, or the program will report back an error:
 ``` 
 -k, --apikey        API key as generated on the ElabFTW user panel
                     needs to have write and read access
@@ -128,6 +117,7 @@ The following instructions are available and mandatory. Use in this sequence:
 -m, --mode          to select between type of import.
             
                     Modes available:
+
                     olig    uploads Oligos for sgRNA generation
                     plas    uploads Plasmid information 
                     rest    uploads restriction enzyme information 
@@ -143,7 +133,7 @@ The following instructions are available and mandatory. Use in this sequence:
 
 ### Command examples
 
-Now that you have learned about the flags, its time to finally send the command.
+Now that you have learned about the flags, it's time to finally send the command.
 
 In the "Terminal", enter the following:
 (if not in the "ElabLoader" Folder, navigate to it. (cd ForEndusers / cd ElabLoader)
@@ -152,7 +142,7 @@ In the "Terminal", enter the following:
 ./elabloader.py [Flags]
 ```
 
-**Before you ask, heres a prefabbed command:**
+**Before you ask, here is a pre-fabbed command:**
 
 ```shell
 ./elabloader.py --apikey <enteryourkey> \ 
@@ -173,9 +163,10 @@ For logging, you can dump the output to a file.
 
 # Legal and Credits
 
-this Script is published under [CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/)
+### This Script is published under [CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/)
 
-ELAB LOADER was created by Luca Fries and Andreas Chiocchetti: 
-this is custom solution for our lab to fulfill the requirement of 
-uploading specific dataset items to our ELAB database(s)
+## ELAB LOADER was created by:
+### -Luca Fries-
+### -Andreas Chiocchetti-
+ 
 
