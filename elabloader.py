@@ -4,16 +4,17 @@ import elabapi_python
 import pandas as pd
 from elabapi_python.rest import ApiException
 import numpy as np
+from typing import Union
 import urllib3
 import sys
 import os
 import getopt
-import time
 from progress.bar import Bar
 
 
 class BatchImporter(object):
     def __init__(self, verify_ssl=True, debug=False, api_key_elab="", api_url="") -> None:
+        self.body = None
         self.API_KEY = api_key_elab
         self.API_HOST_URL = api_url
 
@@ -34,7 +35,7 @@ class BatchImporter(object):
             urllib3.disable_warnings()
 
     def post_item_with_body(self, categoryid: int, title: str = "new created item",
-                            content: str = "new entry", ) -> None:
+                            content: str = "new entry", ) -> str:
         """
            Posts items via API
 
@@ -47,22 +48,26 @@ class BatchImporter(object):
             response = elabapi_python.ItemsApi(self.api_client).post_item_with_http_info(
                 body={'category_id': categoryid})
 
-            locationHeaderInResponse = response[2].get('Location')
-            print('\033[33m' + "Note: The new page with the item can be reached via this link" + '\x1b[0m')
-            print('\033[33m' + "----------------------------" + '\x1b[0m')
-            print(locationHeaderInResponse)
-            itemId = int(locationHeaderInResponse.split('/').pop())
+            location_header_in_response = response[2].get('Location')
+            item_id = int(location_header_in_response.split('/').pop())
 
-            elabapi_python.ItemsApi(self.api_client).patch_item(itemId, body={'title': title, 'body': content})
+            response = elabapi_python.ItemsApi(self.api_client).patch_item(item_id,
+                                                                           body={'title': title, 'body': content})
+            location_header_in_response = response.sharelink
+            return location_header_in_response
 
-        except ApiException as e:
-            print(e)
+        except ApiException as error:
+            print(error)
 
-    def patch_item(self, id: int, body: str, title: str) -> None:
+    def patch_item(self, item_id: int, body: str, title: str) -> str:
+        try:
+            response = elabapi_python.ItemsApi(self.api_client).patch_item(item_id, body={'title': title, 'body': body})
+            location_header_in_response = response.sharelink
+            return location_header_in_response
+        except ApiException as error:
+            print(error)
 
-        elabapi_python.ItemsApi(self.api_client).patch_item(id, body={'title': title, 'body': body})
-
-    def get_id(self, key: str) -> object:
+    def get_id(self, key: str) -> Union:
         try:
             items_dataentry = elabapi_python.ItemsApi(self.api_client).read_items(q=key)
             if len(items_dataentry) == 0:
@@ -72,7 +77,8 @@ class BatchImporter(object):
                 itemid = li
             return itemid
 
-        except ApiException as e:
+        except ApiException as error:
+            print(error)
             print('\033[31m' + "Error: Key not found. Check if the key exists! " + '\x1b[0m')
             return None
 
@@ -80,11 +86,11 @@ class BatchImporter(object):
 def create_body_oligos(entry):
     primer = "<table>" \
              "<tr><th> </th><th><b>forward</b></th><th><b>reverse</b></th>" \
-             "</tr><tr><td><b>Name</b></td><td>" + str(entry["Primer_fwd"]) + "</td><td>" + str(
-        entry["Primer_rev"]) + "</td>" \
-                               "</tr><tr><td><b>Sequence</b></td><td>" + str(
-        entry["Seq_fwd"]) + "</td><td>" + str(entry["Seq_rev"]) + "</td></tr>" \
-                                                                  "</table>"
+             "</tr><tr><td><b>Name</b></td><td>" + str(entry["Primer_fwd"]) + "</td><td>" + \
+             str(entry["Primer_rev"]) + "</td>" \
+                                        "</tr><tr><td><b>Sequence</b></td><td>" + \
+             str(entry["Seq_fwd"]) + "</td><td>" + str(entry["Seq_rev"]) + "</td></tr>" \
+                                                                           "</table>"
 
     rows = "<tr><th><b>Details</b></th><th></th></tr>"
     for k in entry.drop(["title", "Primer_fwd", "Seq_fwd", "Primer_rev", "Seq_rev"]).keys():
@@ -111,7 +117,7 @@ def create_body_plasmids(entry):
     return tableentry
 
 
-def create_body_RT_qPCR_primers(entry):
+def create_body_qpcr_primers(entry):
     primer = "<table>" \
              "<tr><th> </th><th>" \
              "<b>forward</b></th><th><b>reverse</b></th><th><b>UPL Probe</b>" \
@@ -120,19 +126,20 @@ def create_body_RT_qPCR_primers(entry):
              "<b>Name</b>" \
              "</td><td>" + str(entry["Primer_fwd"]) + "</td>" \
                                                       "<td>" + str(entry["Primer_rev"]) + "</td>" \
-                                                                                          "<td>" + str(
-        entry["UPL_Probe#"]) + " </td></tr>" \
-                               "<tr><td>" \
-                               "<b>Sequence&nbsp;</b>" \
-                               "</td><td>" + str(entry["Seq_fwd"]) + "&nbsp;</td>" \
-                                                                     "<td>" + str(entry["Seq_rev"]) + "&nbsp;</td>" \
-                                                                                                      "<td>" + str(
-        entry["SeqUPL"]) + "</td></tr>" \
-                           "</table>"
+                                                                                          "<td>" + \
+             str(entry["UPL_Probe"]) + " </td></tr>" \
+                                       "<tr><td>" \
+                                       "<b>Sequence&nbsp;</b>" \
+                                       "</td><td>" + str(entry["Seq_fwd"]) + "&nbsp;</td>" \
+                                                                             "<td>" + \
+             str(entry["Seq_rev"]) + "&nbsp;</td>" \
+                            "<td>" + \
+             str(entry["SeqUPL"]) + "</td></tr>" \
+                                    "</table>"
 
     rows = "<tr><th><b>Details</b></th><th></th></tr>"
     for u in entry.drop(
-            ["title", "Primer_fwd", "Seq_fwd", "Primer_rev", "Seq_rev", "Details", "UPL_Probe#", "SeqUPL"], ).keys():
+            ["title", "Primer_fwd", "Seq_fwd", "Primer_rev", "Seq_rev", "Details", "UPL_Probe", "SeqUPL"], ).keys():
         rows = rows + "<tr><td><b>" + str(u) + "</b></td><td>" + str(entry[u]) + "</td></tr>"
     tableentry = "<table style='width: 25%'>" + rows + "</table>"
 
@@ -165,15 +172,6 @@ def create_body_restriction_enzymes(entry):
     html_body = tableentry + "<p><br></p>" + description
     return html_body
 
-
-CATERGORYID_PRIMER = 8
-
-##tmp
-API_KEY_ELAB = "929431b9f179a8b57d348856cb59b02580a4dde6b9b04f4ead706a06b4825fb71d31c3f3c75681ed73e313"
-API_HOST_URL_ELAB = "https://test-elab.ub.uni-frankfurt.de/api/v2/"
-MODE = "seq"
-FILE_TO_READ = "/files/ForEndusers/ElabLoader/Input/20230706_SeqPrimer_Template_DH.xlsx"
-CAT_ID = 10
 
 if __name__ == "__main__":
 
@@ -231,37 +229,42 @@ if __name__ == "__main__":
             """
             print(helpmsg)
             exit(0)
-
+        # retreives arguemnts
         elif current_argument in ("-k", "--apikey"):
             API_KEY_ELAB = current_value
-            # print("Show the value: %s" % current_value)
         elif current_argument in ("-u", "--url"):
             API_HOST_URL_ELAB = current_value
-            # print("Show the value: %s" % current_value)
         elif current_argument in ("-f", "--file"):
             FILE_TO_READ = current_value
-            # print("Show the value: %s" % current_value)
         elif current_argument in ("-c", "--cat_id"):
-            CAT_ID = current_value
-            # print("Show the value: %s" % current_value)
+            CAT_ID = int(current_value)
         elif current_argument in ("-m", "--mode"):
             MODE = current_value
-            # print("Show the value: %s" % current_value)
 
     # start importer Class
-    importer = BatchImporter(verify_ssl=False, api_key_elab=API_KEY_ELAB, api_url=API_HOST_URL_ELAB, )
+    importer = BatchImporter(verify_ssl=False, api_key_elab=API_KEY_ELAB, api_url=API_HOST_URL_ELAB)
 
     # read file
-    filepath = FILE_TO_READ
-    root_ext_pair = os.path.splitext(filepath)
+    root_ext_pair = os.path.splitext(FILE_TO_READ)
 
-    # check file type
-    if root_ext_pair[1] == ".xlsx" | root_ext_pair[1] == ".xls":
-        file = pd.read_excel(FILE_TO_READ)
+    # check file type and read respective file
+    if (str(root_ext_pair[1]) == ".xlsx") | (str(root_ext_pair[1]) == ".xls"):
+        try:
+            file = pd.read_excel(FILE_TO_READ)
+        except Exception as e:
+            print(e)
+
     elif root_ext_pair[1] == ".csv":
-        file = pd.read_csv(FILE_TO_READ)
+        try:
+            file = pd.read_csv(FILE_TO_READ)
+        except Exception as e:
+            print(e)
+
     elif root_ext_pair[1] == ".txt":
-        file = pd.read_table(FILE_TO_READ)
+        try:
+            file = pd.read_table(FILE_TO_READ)
+        except Exception as e:
+            print(e)
     else:
         print("invalid type of table format, csv, xlsx, xls or txt accepted")
 
@@ -281,7 +284,6 @@ if __name__ == "__main__":
 
     # initialize loading bar
     bar = Bar('Completed entries: ', max=len(file.index))
-    time.sleep(1)
 
     # select mode
 
@@ -296,10 +298,8 @@ if __name__ == "__main__":
                                    "\nplease check Readme.md for further details" + '\x1b[0m')
                 exit(1)
 
-            seqfwdstr = seqfwd.to_string(header=False, index=False)
-            seqrevstr = seqrev.to_string(header=False, index=False)
-            a = np.array(importer.get_id(seqrevstr))
-            b = np.array(importer.get_id(seqfwdstr))
+            a = np.array(importer.get_id(seqfwd))
+            b = np.array(importer.get_id(seqrev))
 
             try:
                 existingids = np.intersect1d(a, b)
@@ -308,15 +308,21 @@ if __name__ == "__main__":
 
             if len(existingids) == 1:
                 message = file.title[i] + " has been found, nothing done"
+                url = "item number " + str(existingids)
                 bar.next()
                 print(" ")
 
-            else:
-                importer.post_item_with_body(categoryid=CAT_ID, title=file.title[i], content=body_new)
+            elif not existingids:
+                url = importer.post_item_with_body(categoryid=CAT_ID, title=file.title[i], content=body_new)
                 message = file.title[i] + " has been created"
+                bar.next()
+            else:
+                message = file.title[i] + " has multiple entries"
+                url = "check items " + str(existingids)
                 bar.next()
 
             print(message)
+            print(url)
 
     elif "plas" == str(MODE):
         for i in file.index:
@@ -331,22 +337,26 @@ if __name__ == "__main__":
                                    "\nplease check Readme.md for further details" + '\x1b[0m')
                 exit(1)
 
-            seq1str = seq1.to_string(header=False, index=False)
-            exist = importer.get_id(seq1str)
+            exist = importer.get_id(seq1)
+
             if not exist:
-                importer.post_item_with_body(categoryid=CAT_ID, title=file.title[i], content=plasmid_body_new)
+                url = importer.post_item_with_body(categoryid=CAT_ID, title=file.title[i], content=plasmid_body_new)
                 bar.next()
                 message = file.title[i] + " item created"
-            else:
+            elif len(exist) == 1:
                 message = file.title[i] + " item exists nothing done"
+                url = "item item_id is " + str(exist)
+                bar.next()
+            else:
+                message = file.title[i] + " matches multiple items"
+                url = "item numbers " + str(exist)
                 bar.next()
             print(message)
-
+            print(url)
 
     elif "rest" == str(MODE):
         for i in file.index:
             restrict_body_new = create_body_restriction_enzymes(file.iloc[i, :])
-            bar.next()
             try:
                 supp = file.iloc[i, ]["Supplier"]
                 nume = file.iloc[i, ]["No"]
@@ -354,102 +364,126 @@ if __name__ == "__main__":
                 print('\033[31m' + "ERROR: Could not find Supplier or No in submitted table, "
                                    "\nplease check Readme.md for further details" + '\x1b[0m')
                 exit(1)
-            suppstr = supp.to_string(header=False, index=False)
-            numestr = nume.to_string(header=False, index=False)
-            a = np.array(importer.get_id(suppstr))
-            b = np.array(importer.get_id(numestr))
+
+            a = np.array(importer.get_id(supp))
+            b = np.array(importer.get_id(nume))
             try:
                 existingids = np.intersect1d(a, b)
             except TypeError as e:
                 existingids = []
             if len(existingids) == 1:
                 message = file.title[i] + " item exists nothing done"
+                url = "item number " + str(existingids)
+                bar.next()
+            elif not existingids:
+                url = importer.post_item_with_body(categoryid=CAT_ID, title=file.title[i], content=restrict_body_new)
+                message = file.title[i] + " item created"
                 bar.next()
             else:
-                importer.post_item_with_body(categoryid=CAT_ID, title=file.title[i], content=restrict_body_new)
-                message = file.title[i] + " item created"
+                message = file.title[i] + " matches multiple items"
+                url = "item numbers " + str(existingids)
+                bar.next()
 
             print(message)
+            print(url)
 
     elif "seqp" == str(MODE):
         for i in file.index:
             # create html entry for the sequencing primer
             seqprimer_body_new = create_body_seqprimer(file.iloc[i])
-
             # check if the primer already exists based on sequence
             try:
-                seq1 = file.iloc[i,]["Primer_sequence"]
+                seq1 = file.iloc[i, ]["Primer_sequence"]
             except KeyError:
                 print('\033[31m' + "ERROR: Could not find Primer_sequence in submitted table, "
                                    "\nplease check Readme.md for further details" + '\x1b[0m')
                 exit(1)
 
-            seq1str = seq1.to_string(header=False, index=False)
-            exist = importer.get_id(seq1str)
+            exist = importer.get_id(seq1)
             if not exist:
-                importer.post_item_with_body(categoryid=CAT_ID, title=file.title[i], content=seqprimer_body_new)
+                url = importer.post_item_with_body(categoryid=CAT_ID, title=file.title[i], content=seqprimer_body_new)
                 bar.next()
                 message = file.title[i] + " item created"
-            else:
+            elif len(exist) == 1:
                 message = file.title[i] + " item exists nothing done"
+                url = "item number " + str(exist)
+                bar.next()
+            else:
+                message = file.title[i] + " primer matches multiple items"
+                url = "item numbers " + str(exist)
                 bar.next()
             print(message)
+            print(url)
 
     elif "qpcr" == str(MODE):
         for i in file.index:
-            primer_body_new = create_body_RT_qPCR_primers(file.iloc[i])
+            primer_body_new = create_body_qpcr_primers(file.iloc[i])
 
             try:
-                seqfwd = file.iloc[i,]["Seq_fw"]
-                seqrev = file.iloc[i,]["Seq_rw"]
+                seqfwd = file.iloc[i, ]["Seq_fwd"]
+                seqrev = file.iloc[i, ]["Seq_rev"]
             except KeyError:
                 print('\033[31m' + "ERROR: Could not find Seq_fw or Seq_rw in submitted table, "
                                    "\nplease check Readme.md for further details" + '\x1b[0m')
                 exit(1)
 
-            seqfwdstr = seqfwd.to_string(header=False, index=False)
-            seqrevstr = seqrev.to_string(header=False, index=False)
-            a = np.array(importer.get_id(seqrevstr))
-            b = np.array(importer.get_id(seqfwdstr))
+            a = np.array(importer.get_id(seqfwd))
+            b = np.array(importer.get_id(seqrev))
 
             try:
                 existingids = np.intersect1d(a, b)
             except TypeError as e:
                 existingids = []
 
-            if len(existingids) == 1:
-                importer.patch_item(id=int(existingids), body=primer_body_new, title=file.title[i])
-                message = file.title[i] + " has been found in database; patch applied"
-                bar.next()
-
-            else:
-                importer.post_item_with_body(categoryid=int(CAT_ID), title=file.title[i], content=primer_body_new)
+            if not existingids:
+                url = importer.post_item_with_body(categoryid=CAT_ID, title=file.title[i], content=primer_body_new)
                 message = file.title[i] + " has been created"
                 bar.next()
+            elif len(existingids) == 1:
+                url = importer.patch_item(item_id=int(existingids), body=primer_body_new, title=file.title[i])
+                message = file.title[i] + " has been found in database; patch applied"
+                bar.next()
+            else:
+                message = file.title[i] + " more than one primer pair match"
+                url = "item numbers" + str(existingids)
+
             print(message)
+            print(url)
 
     elif "cons" == str(MODE):
         for i in file.index:
-            bar.next()
+
+            cons_body_new = create_body_consumables(file.iloc[i, :])
+
             try:
-                supp = file.iloc[i,]["Supplier"]
-                nume = file.iloc[i,]["No"]
+                supp = file.iloc[i, ]["Supplier"]
+                nume = file.iloc[i, ]["No"]
             except KeyError:
                 print('\033[31m' + "ERROR: Could not find Supplier or No in submitted table, "
                                    "\nplease check Readme.md for further details" + '\x1b[0m')
                 exit(1)
-            suppstr = supp.to_string(header=False, index=False)
-            numestr = nume.to_string(header=False, index=False)
-            a = np.array(importer.get_id(suppstr))
-            b = np.array(importer.get_id(numestr))
+
+            a = np.array(importer.get_id(supp))
+            b = np.array(importer.get_id(nume))
             try:
                 existingids = np.intersect1d(a, b)
             except TypeError as e:
                 existingids = []
+
             if len(existingids) == 1:
-                print("item exists nothing done")
-                print(file.title[i])
+                message = file.title[i] + " has been found in database; nothing done"
+                url = "item number " + str(existingids)
                 bar.next()
+            elif not existingids:
+                url = importer.post_item_with_body(categoryid=int(CAT_ID), title=file.title[i], content=cons_body_new)
+                message = file.title[i] + " has been created"
+                bar.next()
+            else:
+                message = file.title[i] + " more than one item match Supplier and OrderNumber"
+                url = "item numbers " + str(existingids)
+            print(message)
+            print(url)
+
     bar.finish()
 
     print('\033[92m' + "----------------------------" + '\x1b[0m')
