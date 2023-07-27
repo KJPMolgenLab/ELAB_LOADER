@@ -160,8 +160,8 @@ For logging, you can dump the output to a file.
 
 ### This Script is published under [CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/)
 
-## ELAB LOADER was created by:
-### -Luca Fries-
-### -Andreas Chiocchetti-
- 
-
+## ELABLOADER was created by:
+<br>
+@achiocch
+<br>
+@LF-KGU
