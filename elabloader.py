@@ -177,6 +177,23 @@ if __name__ == "__main__":
 
     argv = sys.argv[1:]
 
+    if len(argv) == 0:
+        titleasci = "\033[92m" + r"""
+            All libraries loaded and ready 
+
+             ______ _               ____  _      ____          _____  ______ _____  
+            |  ____| |        /\   |  _ \| |    / __ \   /\   |  __ \|  ____|  __ \ 
+            | |__  | |       /  \  | |_) | |   | |  | | /  \  | |  | | |__  | |__) |
+            |  __| | |      / /\ \ |  _ <| |   | |  | |/ /\ \ | |  | |  __| |  _  / 
+            | |____| |____ / ____ \| |_) | |___| |__| / ____ \| |__| | |____| | \ \ 
+            |______|______/_/    \_\____/|______\____/_/    \_\_____/|______|_|  \_\
+
+            """ + "\x1b[0m"
+        print(titleasci)
+        print("no arguments provided")
+        print("type --help for more information")
+        exit(0)
+
     short_opts = "aufcmh:"
     long_opts = ["apikey=", "url=", "file=", "cat_id=", "mode=", "help"]
     args = []
