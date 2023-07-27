@@ -161,8 +161,7 @@ For logging, you can dump the output to a file.
 ### This Script is published under [CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/)
 
 ## ELABLOADER was created by:
-![avatar1](GitResources/image_2023-07-27_120733687.png)
-https://github.com/achiocch
 <br>
-![avatar2](GitResources/image_2023-07-27_121142318.png)
-https://github.com/LF-KGU
+@achiocch
+<br>
+@LF-KGU
