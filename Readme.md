@@ -196,7 +196,7 @@ In the "Terminal", enter the following:
 ./elabloader.py --apikey <enteryourkey> \ 
                 --url <https://yourelab.yourelabsending.lab/api/v2/> \
                 --file <./Example/Example_cons.xlsx> \
-                --cat_id <numberofyourcatid
+                --cat_id <numberofyourcatid>
 ```
 
 For logging, you can dump the output to a file.
@@ -204,7 +204,7 @@ For logging, you can dump the output to a file.
 ./elabloader.py --apikey <enteryourkey> \ 
                 --url <https://yourelab.yourelabsending/api/v2/> \
                 --file </files/ForEndusers/ElabLoader/Input/example.xlsx> \
-                --cat_id numberofyourcatid > Debug/output.log
+                --cat_id <numberofyourcatid> > Debug/output.log
 ```
 
 # Legal and Credits
