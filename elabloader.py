@@ -194,7 +194,7 @@ if __name__ == "__main__":
         print("type --help for more information")
         exit(0)
 
-    short_opts = "aufcmh:"
+    short_opts = "kufcmh:"
     long_opts = ["apikey=", "url=", "file=", "cat_id=", "mode=", "help"]
     args = []
 

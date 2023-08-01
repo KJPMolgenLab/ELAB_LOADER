@@ -25,10 +25,10 @@
 
 ## Introduction
 
-This is ELABLOADER, a simple-to-use, no-bullshit, non bloating, console based solution to transfer data between the API provided by [elabFTW](https://www.elabftw.net/) and tables provided by the physical lab. 
-It is utilized mainly by reading in prepared XLSX, CSV, or TXT files. 
-Current version is under development. 
-Please do report any bugs! Thanks!
+This is ELABLOADER, a simple-to-use, no-bullshit, non bloating, console based solution to transfer data between the API provided by [elabFTW](https://www.elabftw.net/) and tables provided by the physical lab. 
+It is utilized mainly by reading prepared XLSX, CSV, or TXT files. 
+The current version is under development.
+Please report any bugs! Thanks!
 
 Only works with [elabFTW](https://www.elabftw.net/) installed 
 A demo version of [elabFTW](https://www.elabftw.net/) is available at https://demo.elabftw.net/
@@ -41,8 +41,8 @@ You must have Python 3.9 with the following libraries installed
 * pandas 
 * numpy 
 
-Github is the official download source, the place to praise and the place to complain:
-Simply clone the project and you shouldbe good to go. 
+Github is the official download source, the place to praise, and the place to complain:
+Simply clone the project, and you should be good to go. 
 
 ```
 git clone https://github.com/KJPMolgenLab/ELAB_LOADER.git 
@@ -53,13 +53,13 @@ git clone https://github.com/KJPMolgenLab/ELAB_LOADER.git
 What do I need? 
 - The elabFTW URL to the API 
   - e.g. ```https://demo.elabftw.net/api/v2```
-  - Also, kindly ask your Admin if unsure
+  - Also, kindly ask your administrator if unsure
     <br><br>
 - an API Key 
   - can be generated in the user panel 
-  - needs to have write permisseion
+  - needs to have write permission
   - Online information see [Info](https://doc.elabftw.net/user-guide.html#api-keys-tab)
-  - Kindly ask your Admin if unsure
+  - Kindly ask your administrator if unsure
   <br><br>
 
 - The Category ID of the type of item you want to update in Elab: 
