@@ -1,0 +1,26 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Elabloader
+message: >-
+  python script to upload tabluar data as resources into
+  elabFTW via APIv2
+type: software
+authors:
+  - given-names: Andreas G.
+    family-names: Chiocchetti
+    email: andres.chiocchetti@med.uni-frankfurtde
+    affiliation: 'Goethe University '
+    orcid: 'https://orcid.org/0000-0002-7329-9985'
+  - given-names: Luca
+    family-names: Fries
+    affiliation: Goethe University
+identifiers:
+  - type: url
+    value: 'https://github.com/KJPMolgenLab/ELAB_LOADER'
+    description: Git repository
+repository-code: 'https://github.com/KJPMolgenLab/ELAB_LOADER'
+keywords:
+  - elabFTW
+license: BSD-3-Clause
