@@ -40,6 +40,8 @@ You must have Python 3.9 with the following libraries installed
 * elabapi_python
 * pandas 
 * numpy 
+* progress
+* validators
 
 Github is the official download source, the place to praise, and the place to complain:
 Simply clone the project, and you should be good to go. 
@@ -209,7 +211,8 @@ For logging, you can dump the output to a file.
 
 # Legal and Credits
 
-**This Script is published under [CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/)**
+**This Script is published under [BSD-3-Clause](https://opensource.org/license/bsd-3-clause)**
+**Year 2024 Copyright Holder A. Chiocchetti**
 
 ## ELABLOADER was created by:
 

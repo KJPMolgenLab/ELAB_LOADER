@@ -4,19 +4,26 @@ import elabapi_python
 import pandas as pd
 from elabapi_python.rest import ApiException
 import numpy as np
-from typing import Union
+#from typing import Union
 import urllib3
 import sys
 import os
 import getopt
 from progress.bar import Bar
+import requests
+import validators
+import re
+
 
 
 class BatchImporter(object):
     def __init__(self, verify_ssl=True, debug=False, api_key_elab="", api_url="") -> None:
         self.body = None
-        self.API_KEY = api_key_elab
-        self.API_HOST_URL = api_url
+        self.API_KEY = "2e71a14a2c483010fffeb8181aa4d91e811a6e06cd56880d39a9b8c6a97178eece7312529cb3d251b08321"
+        #api_key_elab
+        self.API_HOST_URL = "https://test-elab.ub.uni-frankfurt.de/api/v2"
+        #api_url
+        #https://test-elab.ub.uni-frankfurt.de/api/v2
 
         configuration = elabapi_python.Configuration()
         configuration.api_key["api_key"] = self.API_KEY
@@ -67,7 +74,7 @@ class BatchImporter(object):
         except ApiException as error:
             print(error)
 
-    def get_id(self, key: str) -> Union:
+    def get_id(self, key: str):
         try:
             items_dataentry = elabapi_python.ItemsApi(self.api_client).read_items(q=key)
             if len(items_dataentry) == 0:
@@ -81,6 +88,36 @@ class BatchImporter(object):
             print(error)
             print('\033[31m' + "Error: Key not found. Check if the key exists! " + '\x1b[0m')
             return None
+
+    def get_item_excel(self,catid):
+            response = elabapi_python.ItemsApi(self.api_client).read_items(cat=9)
+
+            if len(response) == 0:
+                print("Something went wrong! No items found for cat ID!")
+            else:
+                list = [item.id for item in response]
+                for z in list:
+                        extracteditem = elabapi_python.ItemsApi(self.api_client).get_item(z)
+                        print(z)
+                        by = extracteditem.body
+                        id = extracteditem.category_id
+                        ti = extracteditem.title
+                        itid=extracteditem.id
+                        temp1 = pd.read_html(by)
+                        data = {'cat_id': [id],
+                                'title': [ti],
+                                'item_id': [itid]}
+                        datadf=pd.DataFrame(data)
+                        datadf2 = datadf.rename(inplace=True,index={'0': 'A'})
+                        transposeddf = temp1[0].transpose()
+
+                        transposeddf.rename(columns=transposeddf.iloc[0], inplace=True, index={'Unnamed: 1': 'B'})
+                        transposeddf.drop(["Details"], axis=0, inplace=True, )
+
+
+                        finalframe = pd.concat([transposeddf, datadf2],axis=1)
+                        ff = pd.join(transposeddf, datadf)
+            return finalframe
 
 
 def create_body_oligos(entry):
@@ -133,7 +170,7 @@ def create_body_qpcr_primers(entry):
                                        "</td><td>" + str(entry["Seq_fwd"]) + "&nbsp;</td>" \
                                                                              "<td>" + \
              str(entry["Seq_rev"]) + "&nbsp;</td>" \
-                            "<td>" + \
+                                     "<td>" + \
              str(entry["SeqUPL"]) + "</td></tr>" \
                                     "</table>"
 
@@ -172,10 +209,16 @@ def create_body_restriction_enzymes(entry):
     html_body = tableentry + "<p><br></p>" + description
     return html_body
 
+def get_body_html():
+
+    df = pd.read_html("/files/ForEndusers/ElabLoader/Input/htmljson.json")
+    #read file as placeholder
+
 
 if __name__ == "__main__":
 
     argv = sys.argv[1:]
+    print(argv)
 
     if len(argv) == 0:
         titleasci = "\033[92m" + r"""
@@ -197,6 +240,12 @@ if __name__ == "__main__":
     short_opts = "kufcmh:"
     long_opts = ["apikey=", "url=", "file=", "cat_id=", "mode=", "help"]
     args = []
+
+    API_KEY_ELAB = []
+    API_HOST_URL_ELAB = []
+    FILE_TO_READ = []
+    CAT_ID = []
+    MODE = []
 
     try:
         args, opts = getopt.getopt(argv, short_opts, long_opts)
@@ -258,6 +307,26 @@ if __name__ == "__main__":
         elif current_argument in ("-m", "--mode"):
             MODE = current_value
 
+    if not API_KEY_ELAB:
+        print("API key Not defined", file=sys.stderr)
+        exit(1)
+    elif not API_HOST_URL_ELAB:
+        print("API url not defined", file=sys.stderr)
+        exit(1)
+    elif not FILE_TO_READ:
+        print("File path not defined", file=sys.stderr)
+        exit(1)
+    elif not CAT_ID:
+        print("Category Id not defined", file=sys.stderr)
+        exit(1)
+    elif not MODE:
+        print("Mode not defined", file=sys.stderr)
+        exit(1)
+
+    resp = validators.url(API_HOST_URL_ELAB)
+    if not resp:
+        print("API url is not valid: check format: https://oururl.org/api/v2/", file=sys.stderr)
+        exit(0)
     # start importer Class
     importer = BatchImporter(verify_ssl=False, api_key_elab=API_KEY_ELAB, api_url=API_HOST_URL_ELAB)
 
@@ -286,17 +355,7 @@ if __name__ == "__main__":
         print("invalid type of table format, csv, xlsx, xls or txt accepted")
 
     # start import
-    titleasci = "\033[92m" + r"""
-    File and Modes accepted welcome to 
-    
-     ______ _               ____  _      ____          _____  ______ _____  
-    |  ____| |        /\   |  _ \| |    / __ \   /\   |  __ \|  ____|  __ \ 
-    | |__  | |       /  \  | |_) | |   | |  | | /  \  | |  | | |__  | |__) |
-    |  __| | |      / /\ \ |  _ <| |   | |  | |/ /\ \ | |  | |  __| |  _  / 
-    | |____| |____ / ____ \| |_) | |___| |__| / ____ \| |__| | |____| | \ \ 
-    |______|______/_/    \_\____/|______\____/_/    \_\_____/|______|_|  \_\
-    
-    """ + "\x1b[0m"
+    titleasci = "\033[92m" + r"""File and Modes accepted""" + "\x1b[0m"
     print(titleasci)
 
     # initialize loading bar
@@ -308,8 +367,8 @@ if __name__ == "__main__":
         for i in file.index:
             body_new = create_body_oligos(file.iloc[i, :])
             try:
-                seqfwd = file.iloc[i, ]["Seq_fwd"]
-                seqrev = file.iloc[i, ]["Seq_rev"]
+                seqfwd = file.iloc[i,]["Seq_fwd"]
+                seqrev = file.iloc[i,]["Seq_rev"]
             except KeyError:
                 print('\033[31m' + "ERROR: Could not find Seq_fwd or Seq_rev in submitted table, "
                                    "\nplease check Readme.md for further details" + '\x1b[0m')
@@ -348,7 +407,7 @@ if __name__ == "__main__":
 
             # check if the plasmid already exists
             try:
-                seq1 = file.iloc[i, ]["title"]
+                seq1 = file.iloc[i,]["title"]
             except KeyError:
                 print('\033[31m' + "ERROR: Could not find title in submitted table, "
                                    "\nplease check Readme.md for further details" + '\x1b[0m')
@@ -375,8 +434,8 @@ if __name__ == "__main__":
         for i in file.index:
             restrict_body_new = create_body_restriction_enzymes(file.iloc[i, :])
             try:
-                supp = file.iloc[i, ]["Supplier"]
-                nume = file.iloc[i, ]["No"]
+                supp = file.iloc[i,]["Supplier"]
+                nume = file.iloc[i,]["No"]
             except KeyError:
                 print('\033[31m' + "ERROR: Could not find Supplier or No in submitted table, "
                                    "\nplease check Readme.md for further details" + '\x1b[0m')
@@ -410,7 +469,7 @@ if __name__ == "__main__":
             seqprimer_body_new = create_body_seqprimer(file.iloc[i])
             # check if the primer already exists based on sequence
             try:
-                seq1 = file.iloc[i, ]["Primer_sequence"]
+                seq1 = file.iloc[i,]["Primer_sequence"]
             except KeyError:
                 print('\033[31m' + "ERROR: Could not find Primer_sequence in submitted table, "
                                    "\nplease check Readme.md for further details" + '\x1b[0m')
@@ -437,8 +496,8 @@ if __name__ == "__main__":
             primer_body_new = create_body_qpcr_primers(file.iloc[i])
 
             try:
-                seqfwd = file.iloc[i, ]["Seq_fwd"]
-                seqrev = file.iloc[i, ]["Seq_rev"]
+                seqfwd = file.iloc[i,]["Seq_fwd"]
+                seqrev = file.iloc[i,]["Seq_rev"]
             except KeyError:
                 print('\033[31m' + "ERROR: Could not find Seq_fw or Seq_rw in submitted table, "
                                    "\nplease check Readme.md for further details" + '\x1b[0m')
@@ -473,8 +532,8 @@ if __name__ == "__main__":
             cons_body_new = create_body_consumables(file.iloc[i, :])
 
             try:
-                supp = file.iloc[i, ]["Supplier"]
-                nume = file.iloc[i, ]["No"]
+                supp = file.iloc[i,]["Supplier"]
+                nume = file.iloc[i,]["No"]
             except KeyError:
                 print('\033[31m' + "ERROR: Could not find Supplier or No in submitted table, "
                                    "\nplease check Readme.md for further details" + '\x1b[0m')
