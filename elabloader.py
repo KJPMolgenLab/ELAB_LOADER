@@ -4,7 +4,7 @@ import elabapi_python
 import pandas as pd
 from elabapi_python.rest import ApiException
 import numpy as np
-#from typing import Union
+from typing import Union
 import urllib3
 import sys
 import os
@@ -15,14 +15,11 @@ import validators
 import re
 
 
-
 class BatchImporter(object):
     def __init__(self, verify_ssl=True, debug=False, api_key_elab="", api_url="") -> None:
         self.body = None
-        self.API_KEY = "2e71a14a2c483010fffeb8181aa4d91e811a6e06cd56880d39a9b8c6a97178eece7312529cb3d251b08321"
-        #api_key_elab
-        self.API_HOST_URL = "https://test-elab.ub.uni-frankfurt.de/api/v2"
-        #api_url
+        self.API_KEY = api_key_elab
+        self.API_HOST_URL = api_url
         #https://test-elab.ub.uni-frankfurt.de/api/v2
 
         configuration = elabapi_python.Configuration()
@@ -249,6 +246,9 @@ if __name__ == "__main__":
 
     try:
         args, opts = getopt.getopt(argv, short_opts, long_opts)
+        print(args)
+        print(opts)
+
     except getopt.error as err:
         print(str(err))
         exit(0)
