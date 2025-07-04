@@ -50,6 +50,13 @@ Simply clone the project, and you should be good to go. 
 git clone https://github.com/KJPMolgenLab/ELAB_LOADER.git 
 ```
 
+Install the required packages vie pip
+
+```
+pip install -r requirements.txt
+```
+
+
 ## Getting started
 
 What do I need? 

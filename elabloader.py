@@ -511,12 +511,12 @@ if __name__ == "__main__":
             except TypeError as e:
                 existingids = []
 
-            if not existingids:
+            if len(existingids) == 0:
                 url = importer.post_item_with_body(categoryid=CAT_ID, title=file.title[i], content=primer_body_new)
                 message = file.title[i] + " has been created"
                 bar.next()
             elif len(existingids) == 1:
-                url = importer.patch_item(item_id=int(existingids), body=primer_body_new, title=file.title[i])
+                url = importer.patch_item(item_id=int(existingids[0]), body=primer_body_new, title=file.title[i])
                 message = file.title[i] + " has been found in database; patch applied"
                 bar.next()
             else:
@@ -547,10 +547,10 @@ if __name__ == "__main__":
                 existingids = []
 
             if len(existingids) == 1:
-                message = file.title[i] + " has been found in database; nothing done"
-                url = "item number " + str(existingids)
+                url = importer.patch_item(item_id=int(existingids[0]), body=cons_body_new, title=file.title[i])
+                message = file.title[i] + " has been found in database; patch applied"
                 bar.next()
-            elif not existingids:
+            elif len(existingids) == 0:
                 url = importer.post_item_with_body(categoryid=int(CAT_ID), title=file.title[i], content=cons_body_new)
                 message = file.title[i] + " has been created"
                 bar.next()
